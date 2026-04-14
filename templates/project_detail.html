@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - Collabrix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Project Header */
+        .project-header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .project-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .project-header p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .project-dates {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Two Column Layout */
+        .two-columns {
+            display: flex;
+            gap: 20px;
+            min-height: 600px;
+        }
+
+        /* Kanban Board (Left) */
+        .kanban-section {
+            flex: 2;
+            overflow-x: auto;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            min-width: 800px;
+        }
+
+        .kanban-column {
+            flex: 1;
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 500px;
+        }
+
+        .column-header {
+            font-weight: 600;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .column-header.todo { background: #e3f2fd; color: #1565c0; }
+        .column-header.inprogress { background: #fff3e0; color: #e65100; }
+        .column-header.review { background: #f3e5f5; color: #6a1b9a; }
+        .column-header.done { background: #e8f5e9; color: #2e7d32; }
+
+        .task-list {
+            min-height: 400px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .priority-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .priority-low { background: #d4edda; color: #155724; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-high { background: #f8d7da; color: #721c24; }
+        .priority-urgent { background: #f5c6cb; color: #721c24; }
+
+        .task-due {
+            color: #e74c3c;
+            font-size: 10px;
+        }
+
+        .task-assignee {
+            color: #666;
+            font-size: 10px;
+        }
+
+        .add-task-btn {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            color: #666;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .add-task-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Messaging Section (Right) */
+        .messaging-section {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+
+        .messaging-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 10px 12px;
+            max-width: 85%;
+        }
+
+        .message.sent {
+            background: #667eea;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message-sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+
+        .message-text {
+            font-size: 13px;
+            word-wrap: break-word;
+        }
+
+        .message-time {
+            font-size: 9px;
+            margin-top: 4px;
+            opacity: 0.6;
+            text-align: right;
+        }
+
+        .message-input-area {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .message-input-area button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        /* Modal for Task */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-save { background: #667eea; color: white; }
+        .btn-cancel { background: #f0f0f0; color: #666; }
+        .btn-delete { background: #e74c3c; color: white; }
+
+        .dragover {
+            background: #e8f0fe;
+        }
+
+        @media (max-width: 1024px) {
+            .two-columns {
+                flex-direction: column;
+            }
+            .messaging-section {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">📊 Collabrix</div>
+            <div class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/projects">Projects</a>
+                <a href="/profile">Profile</a>
+            </div>
+            <div class="user-info">
+                <span class="user-name">👤 {{ user_name }}</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="project-header">
+            <a href="/projects" class="back-link">← Back to Projects</a>
+            <h1>{{ project.name }}</h1>
+            <p>{{ project.description or 'No description provided.' }}</p>
+            <div class="project-dates">
+                {% if project.start_date %}
+                    📅 {{ project.start_date }} → {{ project.end_date or 'Ongoing' }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="two-columns">
+            <!-- Kanban Board -->
+            <div class="kanban-section">
+                <div class="kanban-board">
+                    <!-- To Do Column -->
+                    <div class="kanban-column" data-status="todo">
+                        <div class="column-header todo">📋 To Do</div>
+                        <div class="task-list" id="todo-list">
+                            {% for task in tasks_by_status.todo %}
+                            <div class="task-card" data-task-id="{{ task.id }}" onclick="openTaskModal({{ task.id }}, '{{ task.title }}', '{{ task.description or '' }}', '{{ task.priority }}', '{{ task.assignee or '' }}', '{{ task.due_date or '' }}')">
+                                <div class="task-title">{{ task.title }}</div>
+                                <div class="task-meta">
+                                    <span class="priority-badge priority-{{ task.priority }}">{{ task.priority|upper }}</span>
+                                    <span class="task-assignee">👤 {{ task.assignee or 'Unassigned' }}</span>
+                                </div>
+                                {% if task.due_date %}
+                                <div class="task-due">📅 Due: {{ task.due_date }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="add-task-btn" onclick="openCreateTaskModal('todo')">+ Add Task</button>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column" data-status="inprogress">
+                        <div class="column-header inprogress">⚡ In Progress</div>
+                        <div class="task-list" id="inprogress-list">
+                            {% for task in tasks_by_status.inprogress %}
+                            <div class="task-card" data-task-id="{{ task.id }}" onclick="openTaskModal({{ task.id }}, '{{ task.title }}', '{{ task.description or '' }}', '{{ task.priority }}', '{{ task.assignee or '' }}', '{{ task.due_date or '' }}')">
+                                <div class="task-title">{{ task.title }}</div>
+                                <div class="task-meta">
+                                    <span class="priority-badge priority-{{ task.priority }}">{{ task.priority|upper }}</span>
+                                    <span class="task-assignee">👤 {{ task.assignee or 'Unassigned' }}</span>
+                                </div>
+                                {% if task.due_date %}
+                                <div class="task-due">📅 Due: {{ task.due_date }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="add-task-btn" onclick="openCreateTaskModal('inprogress')">+ Add Task</button>
+                    </div>
+
+                    <!-- In Review Column -->
+                    <div class="kanban-column" data-status="review">
+                        <div class="column-header review">🔍 In Review</div>
+                        <div class="task-list" id="review-list">
+                            {% for task in tasks_by_status.review %}
+                            <div class="task-card" data-task-id="{{ task.id }}" onclick="openTaskModal({{ task.id }}, '{{ task.title }}', '{{ task.description or '' }}', '{{ task.priority }}', '{{ task.assignee or '' }}', '{{ task.due_date or '' }}')">
+                                <div class="task-title">{{ task.title }}</div>
+                                <div class="task-meta">
+                                    <span class="priority-badge priority-{{ task.priority }}">{{ task.priority|upper }}</span>
+                                    <span class="task-assignee">👤 {{ task.assignee or 'Unassigned' }}</span>
+                                </div>
+                                {% if task.due_date %}
+                                <div class="task-due">📅 Due: {{ task.due_date }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="add-task-btn" onclick="openCreateTaskModal('review')">+ Add Task</button>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-column" data-status="done">
+                        <div class="column-header done">✅ Done</div>
+                        <div class="task-list" id="done-list">
+                            {% for task in tasks_by_status.done %}
+                            <div class="task-card" data-task-id="{{ task.id }}" onclick="openTaskModal({{ task.id }}, '{{ task.title }}', '{{ task.description or '' }}', '{{ task.priority }}', '{{ task.assignee or '' }}', '{{ task.due_date or '' }}')">
+                                <div class="task-title">{{ task.title }}</div>
+                                <div class="task-meta">
+                                    <span class="priority-badge priority-{{ task.priority }}">{{ task.priority|upper }}</span>
+                                    <span class="task-assignee">👤 {{ task.assignee or 'Unassigned' }}</span>
+                                </div>
+                                {% if task.due_date %}
+                                <div class="task-due">📅 Due: {{ task.due_date }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="add-task-btn" onclick="openCreateTaskModal('done')">+ Add Task</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messaging -->
+            <div class="messaging-section">
+                <div class="messaging-header">💬 Team Chat</div>
+                <div class="messages-container" id="messages-container">
+                    {% for msg in messages %}
+                    <div class="message {% if msg.sender_name == user_name %}sent{% endif %}">
+                        <div class="message-sender">{{ msg.sender_name }}</div>
+                        <div class="message-text">{{ msg.message }}</div>
+                        <div class="message-time">{{ msg.timestamp[:16] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="message-input-area">
+                    <input type="text" id="message-input" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h3 id="taskModalTitle">Task Details</h3>
+            <form id="taskForm" method="POST">
+                <input type="hidden" name="task_id" id="task_id">
+                <input type="text" name="title" id="task_title" placeholder="Task Title" required>
+                <textarea name="description" id="task_description" placeholder="Description"></textarea>
+                <select name="priority" id="task_priority">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <input type="text" name="assignee" id="task_assignee" placeholder="Assignee Name">
+                <input type="date" name="due_date" id="task_due_date">
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeTaskModal()">Cancel</button>
+                    <button type="button" class="btn-delete" id="deleteTaskBtn" onclick="deleteCurrentTask()">Delete</button>
+                    <button type="submit" class="btn-save">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Task</h3>
+            <form id="createTaskForm" action="/api/task/create" method="POST">
+                <input type="hidden" name="project_id" value="{{ project.id }}">
+                <input type="hidden" name="status" id="create_task_status">
+                <input type="text" name="title" placeholder="Task Title" required>
+                <textarea name="description" placeholder="Description"></textarea>
+                <select name="priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <input type="text" name="assignee" placeholder="Assignee Name" value="{{ user_name }}">
+                <input type="date" name="due_date">
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeCreateTaskModal()">Cancel</button>
+                    <button type="submit" class="btn-save">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const projectId = {{ project.id }};
+        let currentTaskId = null;
+
+        // Drag and Drop functionality
+        let draggedItem = null;
+
+        document.querySelectorAll('.task-card').forEach(card => {
+            card.setAttribute('draggable', 'true');
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+        });
+
+        document.querySelectorAll('.kanban-column .task-list').forEach(list => {
+            list.addEventListener('dragover', handleDragOver);
+            list.addEventListener('dragleave', handleDragLeave);
+            list.addEventListener('drop', handleDrop);
+        });
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            e.dataTransfer.setData('text/plain', this.dataset.taskId);
+            this.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            if (draggedItem) draggedItem.style.opacity = '';
+            draggedItem = null;
+            document.querySelectorAll('.kanban-column .task-list').forEach(list => {
+                list.classList.remove('dragover');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const taskId = e.dataTransfer.getData('text/plain');
+            const column = this.closest('.kanban-column');
+            const newStatus = column.dataset.status;
+            
+            if (taskId && newStatus) {
+                fetch(`/api/task/${taskId}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        }
+
+        // Message functions
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            fetch('/api/message/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    project_id: projectId,
+                    message: message
+                })
+            }).then(() => {
+                input.value = '';
+                window.location.reload();
+            });
+        }
+
+        // Task Modal functions
+        function openTaskModal(id, title, desc, priority, assignee, dueDate) {
+            currentTaskId = id;
+            document.getElementById('task_id').value = id;
+            document.getElementById('task_title').value = title;
+            document.getElementById('task_description').value = desc;
+            document.getElementById('task_priority').value = priority;
+            document.getElementById('task_assignee').value = assignee;
+            document.getElementById('task_due_date').value = dueDate;
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').style.display = 'none';
+            currentTaskId = null;
+        }
+
+        function deleteCurrentTask() {
+            if (confirm('Delete this task?')) {
+                fetch(`/api/task/${currentTaskId}/delete`, { method: 'POST' })
+                    .then(() => window.location.reload());
+            }
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch(`/api/task/${currentTaskId}/update`, {
+                method: 'POST',
+                body: new URLSearchParams(formData)
+            }).then(() => window.location.reload());
+        });
+
+        // Create Task Modal
+        let createTaskStatus = 'todo';
+        
+        function openCreateTaskModal(status) {
+            createTaskStatus = status;
+            document.getElementById('create_task_status').value = status;
+            document.getElementById('createTaskModal').style.display = 'flex';
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').style.display = 'none';
+            document.getElementById('createTaskForm').reset();
+        }
+
+        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch(this.action, {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(this))
+            }).then(() => window.location.reload());
+        });
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Auto-refresh messages every 10 seconds
+        setInterval(() => {
+            fetch(`/api/messages/${projectId}`)
+                .then(res => res.json())
+                .then(messages => {
+                    const container = document.getElementById('messages-container');
+                    if (container) {
+                        let html = '';
+                        messages.forEach(msg => {
+                            const isSent = msg.sender_name === '{{ user_name }}';
+                            html += `
+                                <div class="message ${isSent ? 'sent' : ''}">
+                                    <div class="message-sender">${escapeHtml(msg.sender_name)}</div>
+                                    <div class="message-text">${escapeHtml(msg.message)}</div>
+                                    <div class="message-time">${msg.timestamp.slice(0, 16)}</div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                        container.scrollTop = container.scrollHeight;
+                    }
+                });
+        }, 10000);
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Scroll messages to bottom
+        const container = document.getElementById('messages-container');
+        if (container) container.scrollTop = container.scrollHeight;
+    </script>
+</body>
+</html>
