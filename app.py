@@ -42,6 +42,46 @@ def logout():
     """Handle user logout"""
     session.clear()
     return redirect(url_for('login'))
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Handle user registration"""
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not name or not email or not password:
+            return render_template('register.html', error='All fields are required')
+        
+        if password != confirm_password:
+            return render_template('register.html', error='Passwords do not match')
+        
+        if len(password) < 4:
+            return render_template('register.html', error='Password must be at least 4 characters')
+        
+        # Check if user already exists
+        existing_user = db.get_user_by_email(email)
+        if existing_user:
+            return render_template('register.html', error='Email already registered. Please login.')
+        
+        # Create new user
+        conn = db.get_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO users (name, email, password)
+                VALUES (?, ?, ?)
+            ''', (name, email, password))
+            conn.commit()
+            conn.close()
+            return render_template('register.html', success='Account created successfully! Please login.')
+        except Exception as e:
+            conn.close()
+            return render_template('register.html', error=f'Error creating account: {str(e)}')
+    
+    return render_template('register.html')
 
 # ==================== MAIN PAGES ====================
 
